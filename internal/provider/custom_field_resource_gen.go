@@ -327,6 +327,7 @@ func (r *customFieldResource) Create(ctx context.Context, req resource.CreateReq
 	}
 
 	// Save data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
@@ -339,6 +340,7 @@ func (r *customFieldResource) Read(ctx context.Context, req resource.ReadRequest
 		return
 	}
 	state := &data
+	clearLegacyBlankStrings(ctx, req.Private, resp.Private, state, &resp.Diagnostics)
 
 	res, err := r.client.Extras.ExtrasCustomFieldsRetrieveContext(ctx, extras.NewExtrasCustomFieldsRetrieveParams().WithID(state.ID.ValueInt64()), nil)
 	if netboxapi.IsNotFound(err) {
@@ -387,6 +389,7 @@ func (r *customFieldResource) Update(ctx context.Context, req resource.UpdateReq
 	}
 
 	// Save updated data into Terraform state
+	markStateWritten(ctx, resp.Private, &resp.Diagnostics)
 	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
 
